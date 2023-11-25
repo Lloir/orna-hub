@@ -1,0 +1,9 @@
+{
+      "redis": {
+        "host": "localhost",
+        "port": "6379"
+      },
+      "hcaptcha": {
+        "secretKey": "0x2aD00462dfBBAa2Eb4410B6056c04cDa8944DF16"
+      }
+    }
