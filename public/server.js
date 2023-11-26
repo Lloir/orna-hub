@@ -198,14 +198,14 @@ cron.schedule('* * * * *', () => {
 // Endpoint to list kingdoms
 app.get('/list-kingdoms', async (req, res) => {
     try {
-        const keys = await clientDB1.keys('kingdom:*');
+        const keys = await client.keys('kingdom:*');
         const kingdoms = await Promise.all(keys.map(async (key) => {
-            return await clientDB1.hGetAll(key);
+            return await client.hGetAll(key);
         }));
         res.json(kingdoms);
     } catch (error) {
         console.error(`Error retrieving kingdoms: ${error}`);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
