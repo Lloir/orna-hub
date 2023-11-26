@@ -222,38 +222,45 @@ app.get('/list-kingdoms', async (req, res) => {
 app.post('/add-kingdom', async (req, res) => {
     const { kingdomName, kingdomType, faction, discordRequired, timeZone, otherInfo } = req.body;
 
-    // Validate kingdomName (non-empty, type string, length constraint)
+    // Validate kingdomName
     if (typeof kingdomName !== 'string' || kingdomName.trim().length === 0 || kingdomName.length > 50) {
+        console.error(`Invalid kingdom name: ${kingdomName}`);
         return res.status(400).send('Invalid kingdom name');
     }
 
-    // Validate kingdomType (must be one of predefined types)
+    // Validate kingdomType
     const validKingdomTypes = ['casual', 'hardcore', 'in_between'];
     if (!validKingdomTypes.includes(kingdomType)) {
+        console.error(`Invalid kingdom type: ${kingdomType}`);
         return res.status(400).send('Invalid kingdom type');
     }
 
-    // Validate faction (must be one of predefined factions)
+    // Validate faction
     const validFactions = ['earthen_legions', 'stormforce', 'kings_of_inferno', 'frozenguard'];
     if (!validFactions.includes(faction)) {
+        console.error(`Invalid faction: ${faction}`);
         return res.status(400).send('Invalid faction');
     }
 
-    // Validate discordRequired (must be a boolean)
+    // Validate discordRequired
     if (typeof discordRequired !== 'boolean') {
+        console.error(`Invalid value for Discord requirement: ${discordRequired}`);
         return res.status(400).send('Invalid value for Discord requirement');
     }
 
-    // Validate timeZone (simple string check, can be more complex based on requirements)
+    // Validate timeZone
     if (typeof timeZone !== 'string' || timeZone.length > 50) {
+        console.error(`Invalid time zone: ${timeZone}`);
         return res.status(400).send('Invalid time zone');
     }
 
-    // Validate otherInfo (type string, length constraint)
+    // Validate otherInfo
     if (typeof otherInfo !== 'string' || otherInfo.length > 255) {
+        console.error(`Invalid other information: ${otherInfo}`);
         return res.status(400).send('Invalid other information');
     }
-    // Construct a unique key for the kingdom (for example, using kingdomName)
+
+    // Construct a unique key for the kingdom
     const kingdomKey = `kingdom:${kingdomName}`;
 
     try {
@@ -262,7 +269,7 @@ app.post('/add-kingdom', async (req, res) => {
             'kingdomName': kingdomName,
             'kingdomType': kingdomType,
             'faction': faction,
-            'discordRequired': discordRequired.toString(), // Ensuring boolean is converted to string
+            'discordRequired': discordRequired.toString(),
             'timeZone': timeZone,
             'otherInfo': otherInfo
         };
@@ -272,7 +279,7 @@ app.post('/add-kingdom', async (req, res) => {
 
         res.status(200).send('Kingdom added successfully!');
     } catch (error) {
-        console.error('Error adding kingdom:', error);
+        console.error(`Error adding kingdom: ${error.message}`, error);
         res.status(500).send('Internal Server Error');
     }
 });
