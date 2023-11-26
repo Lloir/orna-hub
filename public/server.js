@@ -15,6 +15,15 @@ const client = redis.createClient({
     url: `redis://${redisHost}:${redisPort}`
 });
 
+// Client for DB1 (for kingdoms)
+const clientDB1 = redis.createClient({
+    url: `redis://${redisHost}:${redisPort}`,
+    database: 1
+});
+// Connect both clients
+clientDB0.connect().then(() => console.log('Connected to Redis DB0')).catch(console.error);
+clientDB1.connect().then(() => console.log('Connected to Redis DB1')).catch(console.error);
+
 client.on('error', (err) => console.log('Redis Client Error', err));
 
 const limiter = rateLimit({
@@ -248,22 +257,18 @@ app.post('/add-kingdom', async (req, res) => {
     const kingdomKey = `kingdom:${kingdomName}`;
 
     try {
+        // Prepare kingdom data, ensuring all values are strings
         const kingdomData = {
             'kingdomName': kingdomName,
             'kingdomType': kingdomType,
             'faction': faction,
-            'discordRequired': discordRequired,
+            'discordRequired': discordRequired.toString(), // Ensuring boolean is converted to string
             'timeZone': timeZone,
             'otherInfo': otherInfo
         };
 
-        for (const key in kingdomData) {
-            if (Object.hasOwnProperty.call(kingdomData, key)) {
-                kingdomData[key] = kingdomData[key].toString(); // Convert all values to strings
-            }
-        }
-
-        await client.hSet(kingdomKey, kingdomData);
+        // Use clientDB1 to interact with Redis DB1
+        await clientDB1.hSet(kingdomKey, kingdomData);
 
         res.status(200).send('Kingdom added successfully!');
     } catch (error) {
