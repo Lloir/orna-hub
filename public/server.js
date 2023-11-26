@@ -221,63 +221,49 @@ app.get('/list-kingdoms', async (req, res) => {
 app.post('/add-kingdom', async (req, res) => {
     const { kingdomName, kingdomType, faction, discordRequired, timeZone, otherInfo } = req.body;
 
-    // Validate kingdomName
+    // Validate input fields
     if (typeof kingdomName !== 'string' || kingdomName.trim().length === 0 || kingdomName.length > 50) {
-        console.error(`Invalid kingdom name: ${kingdomName}`);
         return res.status(400).send('Invalid kingdom name');
     }
 
-    // Validate kingdomType
     const validKingdomTypes = ['casual', 'hardcore', 'in_between'];
     if (!validKingdomTypes.includes(kingdomType)) {
-        console.error(`Invalid kingdom type: ${kingdomType}`);
         return res.status(400).send('Invalid kingdom type');
     }
 
-    // Validate faction
     const validFactions = ['earthen_legions', 'stormforce', 'kings_of_inferno', 'frozenguard'];
     if (!validFactions.includes(faction)) {
-        console.error(`Invalid faction: ${faction}`);
         return res.status(400).send('Invalid faction');
     }
 
-    // Validate discordRequired
     if (typeof discordRequired !== 'boolean') {
-        console.error(`Invalid value for Discord requirement: ${discordRequired}`);
         return res.status(400).send('Invalid value for Discord requirement');
     }
 
-    // Validate timeZone
     if (typeof timeZone !== 'string' || timeZone.length > 50) {
-        console.error(`Invalid time zone: ${timeZone}`);
         return res.status(400).send('Invalid time zone');
     }
 
-    // Validate otherInfo
     if (typeof otherInfo !== 'string' || otherInfo.length > 255) {
-        console.error(`Invalid other information: ${otherInfo}`);
         return res.status(400).send('Invalid other information');
     }
 
-    // Construct a unique key for the kingdom
+    // Prepare and save kingdom data
     const kingdomKey = `kingdom:${kingdomName}`;
+    const kingdomData = {
+        'kingdomName': kingdomName,
+        'kingdomType': kingdomType,
+        'faction': faction,
+        'discordRequired': discordRequired.toString(),
+        'timeZone': timeZone,
+        'otherInfo': otherInfo
+    };
 
     try {
-        const kingdomData = {
-            'kingdomName': kingdomName,
-            'kingdomType': kingdomType,
-            'faction': faction,
-            'discordRequired': discordRequired.toString(),
-            'timeZone': timeZone,
-            'otherInfo': otherInfo
-        };
-
-        // Use clientDB1 for kingdom related operations
-        await clientDB0.hSet(kingdomKey, kingdomData);
-
+        await client.hSet(kingdomKey, kingdomData);
         res.status(200).send('Kingdom added successfully!');
     } catch (error) {
-        console.error(`Error adding kingdom: ${error}`);
+        console.error(`Error adding kingdom: ${error.message}`);
         res.status(500).send('Internal Server Error');
     }
 });
