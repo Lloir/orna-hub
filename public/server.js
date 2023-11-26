@@ -197,6 +197,19 @@ cron.schedule('* * * * *', () => {
 
 // Kingdom stuffs
 
+app.get('/list-kingdoms', async (req, res) => {
+    try {
+        const keys = await client.keys('kingdom:*'); // Assuming kingdom keys follow this pattern
+        const kingdoms = await Promise.all(keys.map(async (key) => {
+            return await client.hGetAll(key);
+        }));
+        res.json(kingdoms);
+    } catch (error) {
+        console.error('Error retrieving kingdoms:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 app.post('/add-kingdom', async (req, res) => {
     const { kingdomName, kingdomType, faction, discordRequired, timeZone, otherInfo } = req.body;
 
