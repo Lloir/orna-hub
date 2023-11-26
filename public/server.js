@@ -235,18 +235,22 @@ app.post('/add-kingdom', async (req, res) => {
     const kingdomKey = `kingdom:${kingdomName}`;
 
     try {
-        // Store kingdom data in Redis
-        await client.hSet(kingdomKey, {
+        const kingdomData = {
             'kingdomName': kingdomName,
             'kingdomType': kingdomType,
             'faction': faction,
             'discordRequired': discordRequired,
             'timeZone': timeZone,
             'otherInfo': otherInfo
-        });
+        };
 
-        // Optionally, add this kingdom to a list of kingdoms
-        await client.lPush('kingdoms', kingdomKey);
+        for (const key in kingdomData) {
+            if (Object.hasOwnProperty.call(kingdomData, key)) {
+                kingdomData[key] = kingdomData[key].toString(); // Convert all values to strings
+            }
+        }
+
+        await client.hSet(kingdomKey, kingdomData);
 
         res.status(200).send('Kingdom added successfully!');
     } catch (error) {
