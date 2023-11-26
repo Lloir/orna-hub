@@ -10,20 +10,28 @@ const redisHost = config.redis.host;
 const redisPort = config.redis.port;
 const port = config.server.port;
 
-// Create Redis client for DB0 (default database)
+// Create Redis clients
 const client = redis.createClient({
     url: `redis://${redisHost}:${redisPort}`
 });
 
-// Create Redis client for DB1 (kingdoms)
 const clientDB1 = redis.createClient({
     url: `redis://${redisHost}:${redisPort}`,
     database: 1
 });
 
+// Function to connect a Redis client
+function connectRedisClient(client, dbName) {
+    if (!client.isOpen) {
+        client.connect().then(() => console.log(`Connected to Redis ${dbName}`)).catch(console.error);
+    } else {
+        console.log(`Already connected to Redis ${dbName}`);
+    }
+}
+
 // Connect Redis clients
-client.connect().then(() => console.log('Connected to Redis DB0')).catch(console.error);
-clientDB1.connect().then(() => console.log('Connected to Redis DB1')).catch(console.error);
+connectRedisClient(client, 'DB0');
+connectRedisClient(clientDB1, 'DB1');
 
 
 client.on('error', (err) => console.log('Redis Client Error', err));
