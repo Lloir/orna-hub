@@ -50,14 +50,20 @@ function updateKingdomsTable(kingdoms) {
 
     kingdoms.forEach(kingdom => {
         const row = document.createElement('tr');
+
+        // Replace underscores with spaces for display
+        const formattedType = kingdom.kingdomType.replace(/_/g, ' ');
+        const formattedFaction = kingdom.faction.replace(/_/g, ' ');
+
         row.innerHTML = `
             <td>${kingdom.kingdomName}</td>
-            <td>${kingdom.kingdomType}</td>
-            <td>${kingdom.faction}</td>
+            <td>${formattedType}</td>
+            <td>${formattedFaction}</td>
             <td>${kingdom.discordRequired ? 'Yes' : 'No'}</td>
             <td>${kingdom.timeZone}</td>
             <td>${kingdom.otherInfo}</td>
         `;
+
         tableBody.appendChild(row);
     });
 }
