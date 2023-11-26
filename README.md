@@ -10,5 +10,25 @@ Orna Pet is a web application designed to help users manage and track pet-relate
 - **Dark Mode**: Toggle between light and dark themes for user convenience.
 
 ## Installation
-To set up Orna Pet on your local machine, follow these steps:
 
+    Clone or download this repository.
+
+    Navigate to the directory containing the install_app.sh script.
+
+    Make the script executable with the following command:
+
+    bash
+
+chmod +x install_app.sh
+
+Run the script with sudo privileges:
+
+sudo ./install_app.sh
+
+Follow the on-screen prompts to configure Redis and hCaptcha settings.
+
+The installation and configuration process will complete, and you will see the message "Installation and configuration complete."
+
+to run site
+
+node public/server.js

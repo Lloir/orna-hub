@@ -34,6 +34,57 @@ async function populatePetNames() {
     }
 }
 
+function displayPets(pets) {
+    const petsTableBody = document.querySelector('#pets-table tbody');
+    petsTableBody.innerHTML = ''; // Clear existing rows
+
+    pets.forEach(pet => {
+        // Skip adding the pet if the timer has expired
+        if (pet.timeLeft <= 0) {
+            return;
+        }
+
+        const row = document.createElement('tr');
+
+        // Pet Name
+        const petNameCell = document.createElement('td');
+        petNameCell.textContent = pet.petName;
+        row.appendChild(petNameCell);
+
+        // User Name
+        const userNameCell = document.createElement('td');
+        userNameCell.textContent = pet.playerName;
+        row.appendChild(userNameCell);
+
+        // Time Zone
+        const timeZoneCell = document.createElement('td');
+        timeZoneCell.textContent = pet.timeZone;
+        row.appendChild(timeZoneCell);
+
+        // Time Left
+        const timeLeftCell = document.createElement('td');
+        timeLeftCell.textContent = formatTimeLeft(pet.timeLeft); // Format time left
+        row.appendChild(timeLeftCell);
+
+        petsTableBody.appendChild(row);
+    });
+}
+
+function formatTimeLeft(milliseconds) {
+    if (milliseconds <= 0) {
+        return 'Expired';
+    }
+
+    let totalSeconds = Math.floor(milliseconds / 1000);
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = totalSeconds % 60;
+
+    // Padding seconds with zero for consistent formatting
+    seconds = seconds.toString().padStart(2, '0');
+
+    return `${minutes}m ${seconds}s`;
+}
+
 async function populateTimeZones() {
     try {
         const response = await fetch('time_zones.json');
@@ -106,18 +157,6 @@ function setCookie(name, value, days) {
     }
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }
-
-function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-}
-
 async function fetchPets() {
     try {
         const response = await fetch('/list-pets');
@@ -130,23 +169,6 @@ async function fetchPets() {
     }
 }
 
-async function displayPets(pets) {
-    const tbody = document.getElementById('pets-table').querySelector('tbody');
-    tbody.innerHTML = '';
-
-    pets.forEach(pet => {
-        const petId = `${encodeURIComponent(pet.petName)}__${encodeURIComponent(pet.playerName)}`;
-        console.log(`Displaying pet: ${pet.petName}, Time left: ${pet.totalMinutes}`);
-        const row = tbody.insertRow();
-        row.innerHTML = `
-            <td>${pet.petName}</td>
-            <td>${pet.playerName}</td>
-            <td>${pet.timeZone}</td>
-            <td id="timer-${petId}"></td>
-        `;
-        updateTimer(petId, pet.totalMinutes);
-    });
-}
 
 function showModal() {
     const modal = document.querySelector('.modal');
@@ -154,30 +176,22 @@ function showModal() {
 }
 
 function closeModal() {
-    const modal = document.querySelector('.modal');
-    if (modal) modal.style.display = 'none';
+    const modalElement = document.querySelector('.modal');
+    if (modalElement) {
+        const bootstrapModal = bootstrap.Modal.getInstance(modalElement); // Get the Bootstrap modal instance
+        if (bootstrapModal) {
+            bootstrapModal.hide(); // Use Bootstrap's method to hide the modal
+        }
+    }
 }
 
-function updateTimer(petId, totalMinutes) {
+function updateTimerDisplay(petId, timeLeft) {
     const timerElement = document.getElementById(`timer-${petId}`);
-    console.log(`Updating timer for: ${petId}, Element found: ${timerElement !== null}, Total minutes: ${totalMinutes}`);
-    if (!timerElement || isNaN(totalMinutes) || totalMinutes <= 0) return;
+    if (!timerElement) return;
 
-    let seconds = totalMinutes * 60;
-    const interval = setInterval(() => {
-        seconds--;
-        const minutes = Math.floor(seconds / 60);
-        if (seconds <= 0) {
-            clearInterval(interval);
-            timerElement.textContent = 'Time is up';
-            const [encodedPetName, encodedPlayerName] = petId.split('__');
-            const petName = decodeURIComponent(encodedPetName);
-            const playerName = decodeURIComponent(encodedPlayerName);
-            removePetData(petName, playerName);
-        } else {
-            timerElement.textContent = `${minutes} minutes`;
-        }
-    }, 1000);
+    const minutes = Math.floor(timeLeft / 60000);
+    const seconds = ((timeLeft % 60000) / 1000).toFixed(0);
+    timerElement.textContent = `${minutes}m ${seconds}s`;
 }
 
 async function removePetData(petName, playerName) {
@@ -195,7 +209,10 @@ async function removePetData(petName, playerName) {
 
 async function periodicallyFetchPets() {
     try {
-        await fetchPets();
+        const response = await fetch('/list-pets');
+        if (!response.ok) throw new Error('Failed to fetch pets.');
+        const pets = await response.json();
+        displayPets(pets); // This will update the display, including removing expired pets
     } catch (error) {
         console.error('Error:', error);
     } finally {
