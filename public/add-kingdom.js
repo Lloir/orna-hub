@@ -28,5 +28,34 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch((error) => {
                 console.error('Error:', error);
             });
+        function fetchKingdomsAndUpdateTable() {
+            fetch('/list-kingdoms') // Replace with your actual endpoint
+                .then(response => response.json())
+                .then(kingdoms => {
+                    updateKingdomsTable(kingdoms);
+                })
+                .catch(error => console.error('Error fetching kingdoms:', error));
+        }
+
+        function updateKingdomsTable(kingdoms) {
+            const tableBody = document.getElementById('kingdoms-table').querySelector('tbody');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            kingdoms.forEach(kingdom => {
+                const row = document.createElement('tr');
+                // Create and append table cells for kingdom data
+                row.innerHTML = `
+            <td>${kingdom.kingdomName}</td>
+            <td>${kingdom.kingdomType}</td>
+            <td>${kingdom.faction}</td>
+            <td>${kingdom.discordRequired}</td>
+            <td>${kingdom.timeZone}</td>
+            <td>${kingdom.otherInfo}</td>
+        `;
+                tableBody.appendChild(row);
+            });
+        }
+
+
     });
 });
