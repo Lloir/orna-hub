@@ -53,7 +53,7 @@ async function populateTimeZones() {
 
 async function handleAddPetFormSubmit(event) {
     event.preventDefault();
-    const petNameInput = document.getElementById('pet-names');
+    const petNameInput = document.getElementById('petNameInput');
     const playerNameInput = document.getElementById('player-name');
     const timeZoneInput = document.getElementById('time-zone');
     const hoursInput = document.getElementById('time-left-hours');
