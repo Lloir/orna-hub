@@ -195,6 +195,66 @@ cron.schedule('* * * * *', () => {
     deletePetsByCondition();
 });
 
+// Kingdom stuffs
+
+app.post('/add-kingdom', async (req, res) => {
+    const { kingdomName, kingdomType, faction, discordRequired, timeZone, otherInfo } = req.body;
+
+    // Validate kingdomName (non-empty, type string, length constraint)
+    if (typeof kingdomName !== 'string' || kingdomName.trim().length === 0 || kingdomName.length > 50) {
+        return res.status(400).send('Invalid kingdom name');
+    }
+
+    // Validate kingdomType (must be one of predefined types)
+    const validKingdomTypes = ['casual', 'hardcore', 'in_between'];
+    if (!validKingdomTypes.includes(kingdomType)) {
+        return res.status(400).send('Invalid kingdom type');
+    }
+
+    // Validate faction (must be one of predefined factions)
+    const validFactions = ['earthen_legions', 'stormforce', 'kings_of_inferno', 'frozenguard'];
+    if (!validFactions.includes(faction)) {
+        return res.status(400).send('Invalid faction');
+    }
+
+    // Validate discordRequired (must be a boolean)
+    if (typeof discordRequired !== 'boolean') {
+        return res.status(400).send('Invalid value for Discord requirement');
+    }
+
+    // Validate timeZone (simple string check, can be more complex based on requirements)
+    if (typeof timeZone !== 'string' || timeZone.length > 50) {
+        return res.status(400).send('Invalid time zone');
+    }
+
+    // Validate otherInfo (type string, length constraint)
+    if (typeof otherInfo !== 'string' || otherInfo.length > 255) {
+        return res.status(400).send('Invalid other information');
+    }
+    // Construct a unique key for the kingdom (for example, using kingdomName)
+    const kingdomKey = `kingdom:${kingdomName}`;
+
+    try {
+        // Store kingdom data in Redis
+        await client.hSet(kingdomKey, {
+            'kingdomName': kingdomName,
+            'kingdomType': kingdomType,
+            'faction': faction,
+            'discordRequired': discordRequired,
+            'timeZone': timeZone,
+            'otherInfo': otherInfo
+        });
+
+        // Optionally, add this kingdom to a list of kingdoms
+        await client.lPush('kingdoms', kingdomKey);
+
+        res.status(200).send('Kingdom added successfully!');
+    } catch (error) {
+        console.error('Error adding kingdom:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
