@@ -74,12 +74,44 @@ app.delete('/remove-pet/:petName/:playerName', async (req, res) => {    const { 
     }
 });
 
+async function calculateRemainingTime(petKey) {
+    const petData = await client.hGetAll(petKey);
+    if (!petData || !petData.startTime || !petData.duration) return null;
+
+    const startTime = parseInt(petData.startTime);
+    const duration = parseInt(petData.duration);
+    const currentTime = Date.now();
+    let remainingTime = Math.max(startTime + duration - currentTime, 0);
+
+    return remainingTime;
+}
+
+// Modify the /list-pets endpoint
+app.get('/list-pets', async (req, res) => {
+    try {
+        const keys = await client.lRange('pets', 0, -1);
+        const pets = await Promise.all(keys.map(async (key) => {
+            const petDetails = await client.hGetAll(key);
+            const remainingTime = await calculateRemainingTime(key);
+            return { ...petDetails, timeLeft: remainingTime };
+        }));
+        res.json(pets);
+    } catch (error) {
+        console.error('Error retrieving pets:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 app.post('/add-pet-post', async (req, res) => {
     const { petName, playerName, timeZone, totalMinutes } = req.body;
     const petKey = `pet:${petName}:${playerName}`;
 
+
     const timestamp = Date.now(); // Current timestamp in milliseconds
+    const totalDuration = totalMinutes * 60 * 1000; // Convert to milliseconds
     await client.hSet(petKey, {
+        'startTime': timestamp,
+        'duration': totalDuration,
         'petName': petName,
         'playerName': playerName,
         'timeZone': timeZone,
@@ -104,31 +136,28 @@ app.post('/update-timer', async (req, res) => {
     }
 });
 
-// Define a new route for fetching time-left data for a pet by its ID
+async function calculateRemainingTime(petKey) {
+    const petData = await client.hGetAll(petKey);
+    if (!petData) return null;
+
+    const startTime = parseInt(petData.startTime);
+    const duration = parseInt(petData.duration);
+    const currentTime = Date.now();
+    let remainingTime = Math.max(startTime + duration - currentTime, 0);
+
+    return remainingTime;
+}
+
 app.get('/get-time-left/:petId', async (req, res) => {
-    try {
-        const petId = req.params.petId;
+    const petId = req.params.petId;
+    const petKey = `pet:${petId}`;
+    const remainingTime = await calculateRemainingTime(petKey);
 
-        // Assuming you have the pet data stored in Redis
-        // You can use the petId to retrieve the pet's data
-        const petKey = `pet:${petId}`;
-        const petData = await client.hGetAll(petKey);
-
-        if (!petData) {
-            // If pet data is not found, return an error response
-            return res.status(404).json({ error: 'Pet not found' });
-        }
-
-        // Calculate the time left in minutes based on your pet data
-        // Here, we assume that the pet data has a field called 'totalMinutes'
-        const timeLeftMinutes = parseInt(petData.totalMinutes || 0);
-
-        // Return the time left data as a JSON response
-        res.json({ totalMinutes: timeLeftMinutes });
-    } catch (error) {
-        console.error('Error fetching time left data:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+    if (remainingTime === null) {
+        return res.status(404).json({ error: 'Pet not found' });
     }
+
+    res.json({ timeLeft: remainingTime });
 });
 
 app.get('/list-pets', async (req, res) => {
@@ -164,29 +193,6 @@ async function deletePetsByCondition() {
 cron.schedule('* * * * *', () => {
     console.log('Checking for pets to delete based on condition');
     deletePetsByCondition();
-});
-
-// Endpoint to add a kingdom
-app.post('/add-kingdom', async (req, res) => {
-    const { kingdomName, kingdomType, faction, discordRequired, timeZone, otherInfo } = req.body;
-
-    // Key for storing the kingdom. Adjust the key pattern as needed.
-    const kingdomKey = `kingdom:${kingdomName.replace(/\s/g, '_').toLowerCase()}`;
-
-    try {
-        await client.hSet(kingdomKey, {
-            'name': kingdomName,
-            'type': kingdomType,
-            'faction': faction,
-            'discordRequired': discordRequired,
-            'timeZone': timeZone,
-            'otherInfo': otherInfo
-        });
-        res.status(200).send('Kingdom added successfully');
-    } catch (error) {
-        console.error('Error adding kingdom:', error);
-        res.status(500).send('Internal Server Error');
-    }
 });
 
 // Start the server
