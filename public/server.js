@@ -166,6 +166,29 @@ cron.schedule('* * * * *', () => {
     deletePetsByCondition();
 });
 
+// Endpoint to add a kingdom
+app.post('/add-kingdom', async (req, res) => {
+    const { kingdomName, kingdomType, faction, discordRequired, timeZone, otherInfo } = req.body;
+
+    // Key for storing the kingdom. Adjust the key pattern as needed.
+    const kingdomKey = `kingdom:${kingdomName.replace(/\s/g, '_').toLowerCase()}`;
+
+    try {
+        await client.hSet(kingdomKey, {
+            'name': kingdomName,
+            'type': kingdomType,
+            'faction': faction,
+            'discordRequired': discordRequired,
+            'timeZone': timeZone,
+            'otherInfo': otherInfo
+        });
+        res.status(200).send('Kingdom added successfully');
+    } catch (error) {
+        console.error('Error adding kingdom:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
