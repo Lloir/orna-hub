@@ -17,14 +17,21 @@ const client = redis.createClient({
 
 const clientDB1 = redis.createClient({
     url: `redis://${redisHost}:${redisPort}`,
-    database: 1
+    database: 1 // Specify the database number here
 });
 
 // Error handling for Redis clients
 client.on('error', (err) => console.log('Redis Client Error', err));
 clientDB1.on('error', (err) => console.log('Redis Client DB1 Error', err));
 
-client.on('error', (err) => console.log('Redis Client Error', err));
+// Connect to Redis clients
+client.connect().catch((err) => {
+    console.error('Redis Client Connection Error:', err);
+});
+clientDB1.connect().catch((err) => {
+    console.error('Redis ClientDB1 Connection Error:', err);
+});
+
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -206,15 +213,16 @@ cron.schedule('* * * * *', () => {
 
 // Kingdom stuffs
 
+// Endpoint to list kingdoms
 app.get('/list-kingdoms', async (req, res) => {
     try {
-        const keys = await client.keys('kingdom:*'); // Assuming kingdom keys follow this pattern
+        const keys = await clientDB1.keys('kingdom:*');
         const kingdoms = await Promise.all(keys.map(async (key) => {
-            return await client.hGetAll(key);
+            return await clientDB1.hGetAll(key);
         }));
         res.json(kingdoms);
     } catch (error) {
-        console.error('Error retrieving kingdoms:', error);
+        console.error(`Error retrieving kingdoms: ${error}`);
         res.status(500).send('Internal Server Error');
     }
 });
@@ -264,7 +272,6 @@ app.post('/add-kingdom', async (req, res) => {
     const kingdomKey = `kingdom:${kingdomName}`;
 
     try {
-        // Prepare kingdom data, ensuring all values are strings
         const kingdomData = {
             'kingdomName': kingdomName,
             'kingdomType': kingdomType,
@@ -274,12 +281,12 @@ app.post('/add-kingdom', async (req, res) => {
             'otherInfo': otherInfo
         };
 
-        // Use clientDB1 to interact with Redis DB1
+        // Use clientDB1 for kingdom related operations
         await clientDB1.hSet(kingdomKey, kingdomData);
 
         res.status(200).send('Kingdom added successfully!');
     } catch (error) {
-        console.error(`Error adding kingdom: ${error.message}`, error);
+        console.error(`Error adding kingdom: ${error}`);
         res.status(500).send('Internal Server Error');
     }
 });
