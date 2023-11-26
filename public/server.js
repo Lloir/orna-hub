@@ -245,19 +245,12 @@ app.post('/add-kingdom', async (req, res) => {
         'kingdomName': kingdomName,
         'kingdomType': kingdomType,
         'faction': faction,
-        'discordRequired': discordRequired.toString(), // Ensuring boolean is converted to string
+        'discordRequired': discordRequired.toString(),
         'timeZone': timeZone,
         'otherInfo': otherInfo
     };
 
     try {
-        // Convert all values to strings to ensure compatibility with Redis
-        for (const key in kingdomData) {
-            if (kingdomData.hasOwnProperty(key)) {
-                kingdomData[key] = kingdomData[key].toString();
-            }
-        }
-
         // Save data to Redis
         await client.hSet(kingdomKey, kingdomData);
         res.status(200).send('Kingdom added successfully!');
