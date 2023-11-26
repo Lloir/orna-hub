@@ -10,26 +10,17 @@ const redisHost = config.redis.host;
 const redisPort = config.redis.port;
 const port = config.server.port;
 
-// Create Redis clients
+// Create a single Redis client
 const client = redis.createClient({
     url: `redis://${redisHost}:${redisPort}`
 });
 
-const clientDB1 = redis.createClient({
-    url: `redis://${redisHost}:${redisPort}`,
-    database: 1 // Specify the database number here
-});
-
-// Error handling for Redis clients
+// Error handling for the Redis client
 client.on('error', (err) => console.log('Redis Client Error', err));
-clientDB1.on('error', (err) => console.log('Redis Client DB1 Error', err));
 
-// Connect to Redis clients
+// Connect to Redis
 client.connect().catch((err) => {
-    console.error('Redis Client Connection Error:', err);
-});
-clientDB1.connect().catch((err) => {
-    console.error('Redis ClientDB1 Connection Error:', err);
+    console.error('Redis Connection Error:', err);
 });
 
 
@@ -282,7 +273,7 @@ app.post('/add-kingdom', async (req, res) => {
         };
 
         // Use clientDB1 for kingdom related operations
-        await clientDB1.hSet(kingdomKey, kingdomData);
+        await clientDB0.hSet(kingdomKey, kingdomData);
 
         res.status(200).send('Kingdom added successfully!');
     } catch (error) {
