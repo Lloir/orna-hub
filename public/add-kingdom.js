@@ -23,39 +23,39 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.text())
             .then(data => {
                 alert(data); // Alert the response for now
-                // Here you might want to clear the form or handle UI updates.
+                fetchKingdomsAndUpdateTable(); // Fetch and update the table
+                // Clear the form or handle other UI updates here if needed
             })
             .catch((error) => {
                 console.error('Error:', error);
             });
-        function fetchKingdomsAndUpdateTable() {
-            fetch('/list-kingdoms') // Replace with your actual endpoint
-                .then(response => response.json())
-                .then(kingdoms => {
-                    updateKingdomsTable(kingdoms);
-                })
-                .catch(error => console.error('Error fetching kingdoms:', error));
-        }
-
-        function updateKingdomsTable(kingdoms) {
-            const tableBody = document.getElementById('kingdoms-table').querySelector('tbody');
-            tableBody.innerHTML = ''; // Clear existing rows
-
-            kingdoms.forEach(kingdom => {
-                const row = document.createElement('tr');
-                // Create and append table cells for kingdom data
-                row.innerHTML = `
-            <td>${kingdom.kingdomName}</td>
-            <td>${kingdom.kingdomType}</td>
-            <td>${kingdom.faction}</td>
-            <td>${kingdom.discordRequired}</td>
-            <td>${kingdom.timeZone}</td>
-            <td>${kingdom.otherInfo}</td>
-        `;
-                tableBody.appendChild(row);
-            });
-        }
-
-
     });
+
+    function fetchKingdomsAndUpdateTable() {
+        fetch('/list-kingdoms') // Make sure this matches your server endpoint
+            .then(response => response.json())
+            .then(kingdoms => {
+                updateKingdomsTable(kingdoms);
+            })
+            .catch(error => console.error('Error fetching kingdoms:', error));
+    }
+
+    function updateKingdomsTable(kingdoms) {
+        const tableBody = document.getElementById('kingdoms-table').querySelector('tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        kingdoms.forEach(kingdom => {
+            const row = document.createElement('tr');
+            // Adjust the following as per the structure of your kingdom data
+            row.innerHTML = `
+                <td>${kingdom.kingdomName}</td>
+                <td>${kingdom.kingdomType}</td>
+                <td>${kingdom.faction}</td>
+                <td>${kingdom.discordRequired ? 'Yes' : 'No'}</td>
+                <td>${kingdom.timeZone}</td>
+                <td>${kingdom.otherInfo}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
 });
