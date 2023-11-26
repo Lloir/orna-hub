@@ -20,19 +20,9 @@ const clientDB1 = redis.createClient({
     database: 1
 });
 
-// Function to connect a Redis client
-function connectRedisClient(client, dbName) {
-    if (!client.isOpen) {
-        client.connect().then(() => console.log(`Connected to Redis ${dbName}`)).catch(console.error);
-    } else {
-        console.log(`Already connected to Redis ${dbName}`);
-    }
-}
-
-// Connect Redis clients
-connectRedisClient(client, 'DB0');
-connectRedisClient(clientDB1, 'DB1');
-
+// Error handling for Redis clients
+client.on('error', (err) => console.log('Redis Client Error', err));
+clientDB1.on('error', (err) => console.log('Redis Client DB1 Error', err));
 
 client.on('error', (err) => console.log('Redis Client Error', err));
 
