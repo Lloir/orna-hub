@@ -10,51 +10,40 @@
 </head>
 <body>
 
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a href="index.html" class="navbar-brand">OrnaHub</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a href="javascript:void(0)" id="theme-toggle" class="nav-link">Toggle Dark Mode</a>
+                </li>
+                <li class="nav-item">
+                    <!-- Trigger Modal -->
+                    <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#add-kingdom-modal">Add Kingdom</a>
+                </li>
+                <li class="nav-item">
+                    <a href="faq.html" class="nav-link">FAQ</a>
+                <li class="nav-item">
+                    <a href="kingdom-search.html" class="nav-link">Kingdom Search</a>
+            </ul>
+        </div>
+    </div>
+</nav>
+
 <main class="container mt-4">
-    <h1>Kingdom Search</h1>
-    <p>Search and filter kingdoms in OrnaHub</p>
+    <h1 class="text-center mb-4">Kingdom Search</h1>
 
     <!-- Add Kingdom Button -->
-    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#add-kingdom-modal">Add Kingdom</button>
+    <div class="text-center mb-3">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-kingdom-modal">Add Kingdom</button>
+    </div>
 
-    <section id="kingdom-search-section" class="mt-4">
-        <form id="kingdom-search-form" class="mb-4">
-            <div class="form-group mb-3">
-                <input type="text" id="kingdom-name" class="form-control" placeholder="Enter Kingdom Name" maxlength="50">
-            </div>
-            <div class="form-group mb-3">
-                <select id="kingdom-type" class="form-control">
-                    <option value="">Choose Kingdom Type</option>
-                    <option value="casual">Casual</option>
-                    <option value="hardcore">Hardcore</option>
-                </select>
-            </div>
-            <div class="form-group mb-3">
-                <select id="faction" class="form-control">
-                    <option value="">Choose Faction</option>
-                    <option value="earthen_legions">Earthen Legions</option>
-                    <option value="stormforce">Stormforce</option>
-                    <option value="kings_of_inferno">Kings of Inferno</option>
-                    <option value="frozenguard">Frozenguard</option>
-                </select>
-            </div>
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="discord-required">
-                <label class="form-check-label" for="discord-required">
-                    Discord Required
-                </label>
-            </div>
-            <div class="form-group mb-3">
-                <input type="text" id="time-zone" class="form-control" placeholder="Enter Time Zone">
-            </div>
-            <div class="form-group mb-3">
-                <textarea id="other-info" class="form-control" placeholder="Any other information" maxlength="255"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Search</button>
-        </form>
-    </section>
-
-    <section id="search-results-section" class="mt-4">
+    <section id="search-results-section">
+        <h2 class="text-center mb-4">Kingdoms</h2>
         <table id="kingdoms-table" class="table table-striped">
             <thead>
             <tr>

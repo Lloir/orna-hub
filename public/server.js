@@ -15,21 +15,19 @@ const client = redis.createClient({
     url: `redis://${redisHost}:${redisPort}`
 });
 
+// Error handling for Redis client
 client.on('error', (err) => console.log('Redis Client Error', err));
+
+// Connect to Redis client
+client.connect().catch((err) => {
+    console.error('Redis Client Connection Error:', err);
+});
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 10000 // Limit each IP to 100 requests per windowMs
 });
 
-// Connect to Redis
-client.connect().then(() => {
-    console.log('Connected to Redis');
-}).catch((err) => {
-    console.error('Redis Connection Error:', err);
-});
-
-// Use express.json() instead of body-parser
 app.use(limiter);
 app.use(express.json());
 app.use(express.static('public'));
@@ -193,6 +191,73 @@ async function deletePetsByCondition() {
 cron.schedule('* * * * *', () => {
     console.log('Checking for pets to delete based on condition');
     deletePetsByCondition();
+});
+
+// Kingdom stuffs
+
+// Endpoint to list kingdoms
+app.get('/list-kingdoms', async (req, res) => {
+    try {
+        const keys = await client.keys('kingdom:*');
+        const kingdoms = await Promise.all(keys.map(async (key) => {
+            return await client.hGetAll(key);
+        }));
+        res.json(kingdoms);
+    } catch (error) {
+        console.error(`Error retrieving kingdoms: ${error}`);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+app.post('/add-kingdom', async (req, res) => {
+    const { kingdomName, kingdomType, faction, discordRequired, timeZone, otherInfo } = req.body;
+
+    // Input validation checks
+    if (typeof kingdomName !== 'string' || kingdomName.trim().length === 0 || kingdomName.length > 50) {
+        return res.status(400).send('Invalid kingdom name');
+    }
+
+    const validKingdomTypes = ['casual', 'hardcore', 'in_between'];
+    if (!validKingdomTypes.includes(kingdomType)) {
+        return res.status(400).send('Invalid kingdom type');
+    }
+
+    const validFactions = ['earthen_legions', 'stormforce', 'kings_of_inferno', 'frozenguard'];
+    if (!validFactions.includes(faction)) {
+        return res.status(400).send('Invalid faction');
+    }
+
+    if (typeof discordRequired !== 'boolean') {
+        return res.status(400).send('Invalid value for Discord requirement');
+    }
+
+    if (typeof timeZone !== 'string' || timeZone.length > 50) {
+        return res.status(400).send('Invalid time zone');
+    }
+
+    if (typeof otherInfo !== 'string' || otherInfo.length > 255) {
+        return res.status(400).send('Invalid other information');
+    }
+
+    // Prepare and save kingdom data
+    const kingdomKey = `kingdom:${kingdomName}`;
+    const kingdomData = {
+        'kingdomName': kingdomName,
+        'kingdomType': kingdomType,
+        'faction': faction,
+        'discordRequired': discordRequired.toString(),
+        'timeZone': timeZone,
+        'otherInfo': otherInfo
+    };
+
+    try {
+        // Save data to Redis
+        await client.hSet(kingdomKey, kingdomData);
+        res.status(200).send('Kingdom added successfully!');
+    } catch (error) {
+        console.error(`Error adding kingdom: ${error.message}`);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 // Start the server
