@@ -39,6 +39,11 @@ function displayPets(pets) {
     petsTableBody.innerHTML = ''; // Clear existing rows
 
     pets.forEach(pet => {
+        // Skip adding the pet if the timer has expired
+        if (pet.timeLeft <= 0) {
+            return;
+        }
+
         const row = document.createElement('tr');
 
         // Pet Name
@@ -58,7 +63,7 @@ function displayPets(pets) {
 
         // Time Left
         const timeLeftCell = document.createElement('td');
-        timeLeftCell.textContent = formatTimeLeft(pet.timeLeft); // Assumes timeLeft is in milliseconds
+        timeLeftCell.textContent = formatTimeLeft(pet.timeLeft); // Format time left
         row.appendChild(timeLeftCell);
 
         petsTableBody.appendChild(row);
@@ -204,7 +209,10 @@ async function removePetData(petName, playerName) {
 
 async function periodicallyFetchPets() {
     try {
-        await fetchPets();
+        const response = await fetch('/list-pets');
+        if (!response.ok) throw new Error('Failed to fetch pets.');
+        const pets = await response.json();
+        displayPets(pets); // This will update the display, including removing expired pets
     } catch (error) {
         console.error('Error:', error);
     } finally {
