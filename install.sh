@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Check if the OS is Ubuntu 23.04
+if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    if [ "$PRETTY_NAME" != "Ubuntu 23.04" ]; then
+        echo "This script is intended for Ubuntu 23.04 only. Aborting."
+        exit 1
+    fi
+else
+    echo "Unable to determine the operating system. Aborting."
+    exit 1
+fi
+
 # Function to install Redis
 install_redis() {
     if ! command -v redis-server &> /dev/null; then
