@@ -10,33 +10,24 @@ const redisHost = config.redis.host;
 const redisPort = config.redis.port;
 const port = config.server.port;
 
-// Create a single Redis client
+// Create Redis client
 const client = redis.createClient({
     url: `redis://${redisHost}:${redisPort}`
 });
 
-// Error handling for the Redis client
+// Error handling for Redis client
 client.on('error', (err) => console.log('Redis Client Error', err));
 
-// Connect to Redis
+// Connect to Redis client
 client.connect().catch((err) => {
-    console.error('Redis Connection Error:', err);
+    console.error('Redis Client Connection Error:', err);
 });
-
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 10000 // Limit each IP to 100 requests per windowMs
 });
 
-// Connect to Redis
-client.connect().then(() => {
-    console.log('Connected to Redis');
-}).catch((err) => {
-    console.error('Redis Connection Error:', err);
-});
-
-// Use express.json() instead of body-parser
 app.use(limiter);
 app.use(express.json());
 app.use(express.static('public'));
