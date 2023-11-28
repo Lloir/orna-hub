@@ -222,7 +222,7 @@ app.post('/add-kingdom', async (req, res) => {
         return res.status(400).send('Invalid kingdom type');
     }
 
-    const validFactions = ['earthen_legions', 'stormforce', 'kings_of_inferno', 'frozenguard'];
+    const validFactions = ['earthen_legion', 'stormforce', 'knights_of_inferno', 'frozenguard'];
     if (!validFactions.includes(faction)) {
         return res.status(400).send('Invalid faction');
     }
