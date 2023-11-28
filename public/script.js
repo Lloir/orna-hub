@@ -91,10 +91,12 @@ async function populateTimeZones() {
         if (!response.ok) throw new Error('Failed to fetch time zones.');
         const data = await response.json();
         const timeZoneSelect = document.getElementById('time-zone');
-        data.forEach(timeZone => {
+
+        // Using Object.entries to iterate over key-value pairs
+        Object.entries(data).forEach(([timeZone, offset]) => {
             let option = document.createElement('option');
-            option.value = timeZone.zone;
-            option.textContent = timeZone.zone;
+            option.value = timeZone; // Set the value to the key (time zone)
+            option.textContent = `${timeZone} (UTC${offset})`; // Include the offset in the text
             timeZoneSelect.appendChild(option);
         });
     } catch (error) {
