@@ -4,6 +4,38 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchKingdomsAndUpdateTable(); // Fetch existing kingdoms on page load
 });
 
+function toggleTheme() {
+    const lightTheme = document.getElementById('light-theme');
+    const darkTheme = document.getElementById('dark-theme');
+
+    if (darkTheme.disabled) {
+        darkTheme.disabled = false;
+        lightTheme.disabled = true;
+    } else {
+        darkTheme.disabled = true;
+        lightTheme.disabled = false;
+    }
+}
+
+function saveThemePreference() {
+    const currentTheme = document.getElementById('dark-theme').disabled ? 'light' : 'dark';
+    localStorage.setItem('preferredTheme', currentTheme);
+}
+
+function applySavedThemePreference() {
+    const preferredTheme = localStorage.getItem('preferredTheme');
+    if (preferredTheme) {
+        if (preferredTheme === 'dark') {
+            // Enable dark theme
+        } else {
+            // Enable light theme
+        }
+    }
+}
+
+// Call this function when the page loads
+applySavedThemePreference();
+
 async function handleAddKingdomFormSubmit(event) {
     event.preventDefault();
 
