@@ -144,33 +144,36 @@ async function handleAddPetFormSubmit(event) {
 }
 
 function toggleTheme() {
-    const body = document.body;
-    body.classList.toggle("dark-mode");
-    const newTheme = body.classList.contains("dark-mode") ? "dark" : "light";
-    setCookie("theme", newTheme, 365);
-}
+    const lightTheme = document.getElementById('light-theme');
+    const darkTheme = document.getElementById('dark-theme');
 
-function setCookie(name, value, days) {
-    let expires = "";
-    if (days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "") + expires + "; path=/";
-}
-async function fetchPets() {
-    try {
-        const response = await fetch('/list-pets');
-        if (!response.ok) throw new Error('Failed to fetch pets.');
-        const pets = await response.json();
-        displayPets(pets);
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while fetching pets.');
+    if (darkTheme.disabled) {
+        darkTheme.disabled = false;
+        lightTheme.disabled = true;
+    } else {
+        darkTheme.disabled = true;
+        lightTheme.disabled = false;
     }
 }
 
+function saveThemePreference() {
+    const currentTheme = document.getElementById('dark-theme').disabled ? 'light' : 'dark';
+    localStorage.setItem('preferredTheme', currentTheme);
+}
+
+function applySavedThemePreference() {
+    const preferredTheme = localStorage.getItem('preferredTheme');
+    if (preferredTheme) {
+        if (preferredTheme === 'dark') {
+            // Enable dark theme
+        } else {
+            // Enable light theme
+        }
+    }
+}
+
+// Call this function when the page loads
+applySavedThemePreference();
 
 function showModal() {
     const modal = document.querySelector('.modal');
