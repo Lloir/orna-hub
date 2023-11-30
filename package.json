@@ -17,9 +17,9 @@
     "redis": "^4.6.11"
   },
   "scripts": {
-    "start": "node public/server.js"
+    "start": "node public/js/server.js"
   },
-  "main": "public/server.js",
+  "main": "public/js/server.js",
   "author": "",
   "license": "ISC",
   "description": "## Description Orna Pet is a web application designed to help users manage and track pet-related posts effectively. It features a real-time countdown timer for each post, a filtering system for easy navigation, and a user-friendly interface with a dark mode option.",
