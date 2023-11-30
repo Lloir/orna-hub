@@ -29,10 +29,6 @@
                     <a href="javascript:void(0)" id="theme-toggle" class="nav-link">Toggle Dark Mode</a>
                 </li>
                 <li class="nav-item">
-                    <!-- Trigger Modal -->
-                    <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#add-pet-modal">Add a Pet</a>
-                </li>
-                <li class="nav-item">
                     <a href="faq.html" class="nav-link">FAQ</a>
                 <li class="nav-item">
                     <a href="kingdom-search.html" class="nav-link">Kingdom Search</a>
@@ -42,6 +38,9 @@
 </nav>
 
 <main class="container mt-4">
+    <div class="text-center mb-3">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-pet-modal">Add Pet</button>
+    </div>
     <section id="pets-table-section" class="mt-4">
         <table id="pets-table" class="table table-striped">
             <thead>
