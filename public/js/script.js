@@ -104,6 +104,17 @@ async function populateTimeZones() {
     }
 }
 
+async function fetchPets() {
+    try {
+        const response = await fetch('list-pets');
+        if (!response.ok) throw new Error('Failed to fetch pets.');
+        const pets = await response.json();
+        displayPets(pets);
+    } catch (error) {
+        console.error('Error fetching pets:', error);
+    }
+}
+
 async function handleAddPetFormSubmit(event) {
     event.preventDefault();
     const petNameInput = document.getElementById('petNameInput');
