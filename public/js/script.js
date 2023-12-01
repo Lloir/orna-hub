@@ -214,7 +214,7 @@ async function removePetData(petName, playerName) {
 
 async function periodicallyFetchPets() {
     try {
-        const response = await fetch('doc/list-pets');
+        const response = await fetch('list-pets');
         if (!response.ok) throw new Error('Failed to fetch pets.');
         const pets = await response.json();
         displayPets(pets); // This will update the display, including removing expired pets
