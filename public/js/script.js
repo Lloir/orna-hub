@@ -19,7 +19,7 @@ function setupEventListeners() {
 
 async function populatePetNames() {
     try {
-        const response = await fetch('doc/petNames.json');
+        const response = await fetch('public/doc/petNames.json');
         if (!response.ok) throw new Error('Failed to fetch pet names.');
         const data = await response.json();
         const petSelect = document.getElementById('petNameInput');
@@ -87,7 +87,7 @@ function formatTimeLeft(milliseconds) {
 
 async function populateTimeZones() {
     try {
-        const response = await fetch('doc/time_zones.json');
+        const response = await fetch('public/doc/time_zones.json');
         if (!response.ok) throw new Error('Failed to fetch time zones.');
         const data = await response.json();
         const timeZoneSelect = document.getElementById('time-zone');
